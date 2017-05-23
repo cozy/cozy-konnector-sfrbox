@@ -1,0 +1,62 @@
+{
+  "version": "1.0.0",
+  "name": "SFR box",
+  "type": "node",
+  "slug": "sfrbox",
+  "description": "Get all the bills from SFR box",
+  "source": "git://github.com/cozy/cozy-konnector-sfrbox.git",
+  "fields": {
+    "save_folder": {
+      "doctype": "io.cozy.files",
+      "type": "folder"
+    },
+    "account": {
+      "doctype": "io.cozy.accounts",
+      "account_type": "sfr",
+      "accountFormat": "login,password"
+    }
+  },
+  "locales": {
+    "fr": {
+      "description": "Récupère toutes vos factures SFR box",
+      "permissions": {
+        "bills": {
+          "description": "Utilisé pour sauvegarder les données de facturation"
+        },
+        "files": {
+          "description": "Utilisé pour sauvegarder les factures"
+        }
+      }
+    },
+    "en": {
+      "description": "Retrieves all your SFR box invoices",
+      "permissions": {
+        "bills": {
+          "description": "Used to save billing data"
+        },
+        "files": {
+          "description": "Used to save invoices"
+        }
+      }
+    }
+  },
+  "permissions": {
+    "bills": {
+      "description": "Required to save the bills data",
+      "type": "io.cozy.bills"
+    },
+    "files": {
+      "description": "Required to save the bills",
+      "type": "io.cozy.files"
+    },
+    "accounts": {
+      "description": "Required to get the account's data",
+      "type": "io.cozy.accounts",
+      "verbs": ["GET"]
+    }
+  },
+  "developer": {
+    "name": "doubleface",
+    "url": "https://github.com/doubleface"
+  }
+}

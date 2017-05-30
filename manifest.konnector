@@ -3,7 +3,6 @@
   "name": "SFR box",
   "type": "node",
   "slug": "sfrbox",
-  "description": "Get all the bills from SFR box",
   "source": "git://github.com/cozy/cozy-konnector-sfrbox.git",
   "fields": {
     "save_folder": {

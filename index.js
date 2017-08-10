@@ -1,4 +1,6 @@
 const moment = require('moment')
+const bluebird = require('bluebird')
+const cheerio = require('cheerio')
 
 const {log, BaseKonnector, saveBills, request, retry} = require('cozy-konnector-libs')
 
@@ -38,6 +40,7 @@ function getToken () {
   return rq('https://www.sfr.fr/bounce?target=//www.sfr.fr/sfr-et-moi/bounce.html&casforcetheme=mire-sfr-et-moi&mire_layer')
   .then($ => $('input[name=lt]').val())
   .then(token => {
+    log('debug', token, 'TOKEN')
     if (!token) throw new Error('BAD_TOKEN')
     return token
   })
@@ -53,13 +56,13 @@ function logIn (token, fields) {
       _eventId: 'submit',
       username: fields.login,
       password: fields.password,
+      'remember-me': 'on',
       identifier: ''
     }
   })
-  .then($ => {
-    const badLogin = $('#username').length > 0
-    if (badLogin) throw new Error('bad login')
-  })
+  // .then(response => {
+  //   // if (response.statusCode === 302) throw new Error('bad login')
+  // })
   .catch(err => {
     log('info', err.message, 'Error while logging in')
     throw new Error('LOGIN_FAILED')
@@ -89,18 +92,14 @@ function parsePage ($) {
   moment.locale('fr')
   const baseURL = 'https://espace-client.sfr.fr'
 
-  const firstBill = $('#facture')
-  const firstBillUrl = $('#lien-telecharger-pdf').attr('href')
+  // handle the special case of the first bill
+  const $firstBill = $('#lastFacture')
+  const firstBillUrl = $firstBill.find('a.sr-chevron').attr('href')
 
   if (firstBillUrl) {
-    // The year is not provided, but we assume this is the current year or that
-    // it will be provided if different from the current year
-    let firstBillDate = firstBill.find('tr.header h3').text().substr(17)
-    firstBillDate = moment(firstBillDate, 'D MMM YYYY')
-
-    const price = firstBill.find('tr.total td.prix').text()
-                                                    .replace('€', '')
-                                                    .replace(',', '.')
+    const fields = $firstBill.find('.sr-container-content').eq(0).find('span')
+    const firstBillDate = moment(fields.eq(1).text().trim(), 'DD/MM/YYYY')
+    const price = fields.eq(2).text().trim().replace('€', '').replace(',', '.')
 
     const bill = {
       date: firstBillDate.toDate(),
@@ -115,38 +114,39 @@ function parsePage ($) {
     log('info', 'wrong url for first PDF bill.')
   }
 
-  $('#tab tr').each(function each () {
-    let date = $(this).find('.date').text()
-    let prix = $(this).find('.prix').text()
-                                    .replace('€', '')
-                                    .replace(',', '.')
-    let pdf = $(this).find('.liens a').attr('href')
-
-    if (pdf) {
-      date = date.split(' ')
-      date.pop()
-      date = date.join(' ')
-      date = moment(date, 'D MMM YYYY')
-      prix = parseFloat(prix)
-      pdf = `${baseURL}${pdf}`
-
+  return bluebird.map(Array.from($('table.sr-multi-payment tbody tr')), tr => {
+    let link = $(tr).find('td').eq(1).find('a')
+    if (link.length === 1) {
+      link = baseURL + link.attr('href')
+      return rq(link)
+      .then($ => $('.sr-container-wrapper-m').eq(0).html())
+    } else {
+      return false
+    }
+  })
+  .then(list => list.filter(item => item))
+  .then(list => list.map(item => {
+    const $ = cheerio.load(item)
+    const fileurl = $('a.sr-chevron').attr('href')
+    const fields = $('.sr-container-box-M').eq(0).find('span')
+    const date = moment(fields.eq(1).text().trim(), 'DD/MM/YYYY')
+    const price = fields.eq(2).text().trim().replace('€', '').replace(',', '.')
+    if (price) {
       const bill = {
         date: date.toDate(),
-        amount: prix,
-        fileurl: pdf,
+        amount: parseFloat(price),
+        fileurl: `${baseURL}${fileurl}`,
         filename: getFileName(date),
         vendor: 'SFR BOX'
       }
-
-      result.push(bill)
-    } else {
-      log('info', 'wrong url for PDF bill.')
-    }
+      return bill
+    } else return null
+  }))
+  .then(list => list.filter(item => item))
+  .then(bills => {
+    if (result.length) bills.unshift(result[0])
+    return bills
   })
-
-  log('info', 'Successfully parsed the page')
-
-  return result
 }
 
 function getFileName (date) {

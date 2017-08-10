@@ -60,11 +60,11 @@ function logIn (token, fields) {
       identifier: ''
     }
   })
-  // .then(response => {
-  //   // if (response.statusCode === 302) throw new Error('bad login')
-  // })
+  .then($ => {
+    if ($('#loginForm').length) throw new Error('bad login')
+  })
   .catch(err => {
-    log('info', err.message, 'Error while logging in')
+    log('warning', err.message, 'Error while logging in')
     throw new Error('LOGIN_FAILED')
   })
 }

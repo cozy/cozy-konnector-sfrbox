@@ -53364,7 +53364,7 @@ function parsePage ($) {
     log('info', 'wrong url for first PDF bill.')
   }
 
-  return bluebird.map(Array.from($('table.sr-multi-payment tbody tr')), tr => {
+  return bluebird.mapSeries(Array.from($('table.sr-multi-payment tbody tr')), tr => {
     let link = $(tr).find('td').eq(1).find('a')
     if (link.length === 1) {
       link = baseURL + link.attr('href')

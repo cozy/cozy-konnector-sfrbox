@@ -114,7 +114,9 @@ git://github.com/cozy/cozy-konnector-sfrbox.git#build
 
 ### Maintainer
 
-The lead maintainers for this konnector is @doubleface for Cozy Cloud
+The lead maintainer for this konnector is @doubleface for Cozy Cloud. Before,
+it was maintained by ZeHiro, with contributions from Frank Rousseau,
+SomeAverageDev, and nicofrand.
 
 
 ### Get in touch

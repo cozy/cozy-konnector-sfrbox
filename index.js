@@ -20,7 +20,9 @@ module.exports = new BaseKonnector(function fetch (fields) {
   .then(token => logIn(token, fields))
   .then(() => retry(fetchBillsAttempts, {
     interval: 5000,
-    throw_original: true
+    throw_original: true,
+    // do not retry if we get the LOGIN_FAILED error code
+    predicate: err => err.message !== 'LOGIN_FAILED'
   }))
   .then(entries => saveBills(entries, fields.folderPath, {
     timeout: Date.now() + 60 * 1000,
@@ -64,7 +66,7 @@ function logIn (token, fields) {
     if ($('#loginForm').length) throw new Error('bad login')
   })
   .catch(err => {
-    log('warning', err.message, 'Error while logging in')
+    log('warn', err.message, 'Error while logging in')
     throw new Error('LOGIN_FAILED')
   })
 }
@@ -81,9 +83,14 @@ function fetchBillsAttempts () {
 function fetchBillingInfo () {
   log('info', 'Fetching bill info')
   return rq('https://espace-client.sfr.fr/facture-fixe/consultation')
-  .catch(err => {
-    log('error', err.message, 'Error while fetching billing info')
-    throw err
+  .then($ => {
+    if ($('input[name^=TS01]').length > 0) {
+      // this is the case where the user identified himself with other sfr login
+      log('error', 'This is not sfr box identifier')
+      throw new Error('LOGIN_FAILED')
+    }
+
+    return $
   })
 }
 

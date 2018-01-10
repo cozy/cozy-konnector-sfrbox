@@ -9132,7 +9132,7 @@ return hooks;
 
 var global = __webpack_require__(7);
 var core = __webpack_require__(94);
-var hide = __webpack_require__(27);
+var hide = __webpack_require__(28);
 var redefine = __webpack_require__(42);
 var ctx = __webpack_require__(34);
 var PROTOTYPE = 'prototype';
@@ -11056,6 +11056,91 @@ module.exports = isObjectLike;
 /* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
+
+const { env2formats } = __webpack_require__(795)
+const { filterLevel, filterSecrets } = __webpack_require__(805)
+
+const { DEBUG, NODE_ENV, LOG_LEVEL } = process.env
+const env = (env2formats[NODE_ENV] && NODE_ENV) || 'production'
+
+let level = LOG_LEVEL || (DEBUG && DEBUG.length ? 'debug' : 'info')
+const format = env2formats[env]
+const filters = [filterLevel, filterSecrets]
+
+const filterOut = function (level, type, message, label, namespace) {
+  for (const filter of filters) {
+    if (filter.apply(null, arguments) === false) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Use it to log messages in your konnector. Typical types are
+ *
+ * - `debug`
+ * - `warning`
+ * - `info`
+ * - `error`
+ * - `ok`
+ *
+ *
+ * @example
+ *
+ * They will be colored in development mode. In production mode, those logs are formatted in JSON to be interpreted by the stack and possibly sent to the client. `error` will stop the konnector.
+ *
+ * ```js
+ * logger = log('my-namespace')
+ * logger('debug', '365 bills')
+ * // my-namespace : debug : 365 bills
+ * logger('info', 'Page fetched')
+ * // my-namespace : info : Page fetched
+ * ```
+ * @param  {string} type
+ * @param  {string} message
+ * @param  {string} label
+ * @param  {string} namespace
+ */
+function log (type, message, label, namespace) {
+  if (filterOut(level, type, message, label, namespace)) {
+    return
+  }
+  console.log(format(type, message, label, namespace))
+
+  // Try to stop the connector after current running io before the stack
+  if (type === 'critical') setImmediate(() => process.exit(1))
+}
+
+log.addFilter = function (filter) {
+  return filters.push(filter)
+}
+
+log.setLevel = function (lvl) {
+  level = lvl
+}
+
+// Short-hands
+const methods = ['debug', 'info', 'warn', 'error', 'ok', 'critical']
+methods.forEach(level => {
+  log[level] = function (message, label, namespace) {
+    return log(level, message, label, namespace)
+  }
+})
+
+module.exports = log
+
+log.namespace = function (namespace) {
+  return function (type, message, label, ns = namespace) {
+    log(type, message, label, ns)
+  }
+}
+
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var dP = __webpack_require__(19);
 var createDesc = __webpack_require__(53);
 module.exports = __webpack_require__(23) ? function (object, key, value) {
@@ -11067,7 +11152,7 @@ module.exports = __webpack_require__(23) ? function (object, key, value) {
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11343,91 +11428,6 @@ SPECIAL_ELEMENTS[NS.SVG] = Object.create(null);
 SPECIAL_ELEMENTS[NS.SVG][$.TITLE] = true;
 SPECIAL_ELEMENTS[NS.SVG][$.FOREIGN_OBJECT] = true;
 SPECIAL_ELEMENTS[NS.SVG][$.DESC] = true;
-
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-const { env2formats } = __webpack_require__(795)
-const { filterLevel, filterSecrets } = __webpack_require__(805)
-
-const { DEBUG, NODE_ENV, LOG_LEVEL } = process.env
-const env = (env2formats[NODE_ENV] && NODE_ENV) || 'production'
-
-let level = LOG_LEVEL || (DEBUG && DEBUG.length ? 'debug' : 'info')
-const format = env2formats[env]
-const filters = [filterLevel, filterSecrets]
-
-const filterOut = function (level, type, message, label, namespace) {
-  for (const filter of filters) {
-    if (filter.apply(null, arguments) === false) {
-      return true
-    }
-  }
-  return false
-}
-
-/**
- * Use it to log messages in your konnector. Typical types are
- *
- * - `debug`
- * - `warning`
- * - `info`
- * - `error`
- * - `ok`
- *
- *
- * @example
- *
- * They will be colored in development mode. In production mode, those logs are formatted in JSON to be interpreted by the stack and possibly sent to the client. `error` will stop the konnector.
- *
- * ```js
- * logger = log('my-namespace')
- * logger('debug', '365 bills')
- * // my-namespace : debug : 365 bills
- * logger('info', 'Page fetched')
- * // my-namespace : info : Page fetched
- * ```
- * @param  {string} type
- * @param  {string} message
- * @param  {string} label
- * @param  {string} namespace
- */
-function log (type, message, label, namespace) {
-  if (filterOut(level, type, message, label, namespace)) {
-    return
-  }
-  console.log(format(type, message, label, namespace))
-
-  // Try to stop the connector after current running io before the stack
-  if (type === 'critical') setImmediate(() => process.exit(1))
-}
-
-log.addFilter = function (filter) {
-  return filters.push(filter)
-}
-
-log.setLevel = function (lvl) {
-  level = lvl
-}
-
-// Short-hands
-const methods = ['debug', 'info', 'warn', 'error', 'ok', 'critical']
-methods.forEach(level => {
-  log[level] = function (message, label, namespace) {
-    return log(level, message, label, namespace)
-  }
-})
-
-module.exports = log
-
-log.namespace = function (namespace) {
-  return function (type, message, label, ns = namespace) {
-    log(type, message, label, ns)
-  }
-}
 
 
 /***/ }),
@@ -11974,7 +11974,7 @@ if (__webpack_require__(23)) {
   var ctx = __webpack_require__(34);
   var anInstance = __webpack_require__(68);
   var propertyDesc = __webpack_require__(53);
-  var hide = __webpack_require__(27);
+  var hide = __webpack_require__(28);
   var redefineAll = __webpack_require__(67);
   var toInteger = __webpack_require__(56);
   var toLength = __webpack_require__(21);
@@ -12830,7 +12830,7 @@ module.exports = {
 /***/ (function(module, exports, __webpack_require__) {
 
 var global = __webpack_require__(7);
-var hide = __webpack_require__(27);
+var hide = __webpack_require__(28);
 var has = __webpack_require__(24);
 var SRC = __webpack_require__(54)('src');
 var TO_STRING = 'toString';
@@ -17865,7 +17865,7 @@ module.exports = Object.keys || function keys(O) {
 // 22.1.3.31 Array.prototype[@@unscopables]
 var UNSCOPABLES = __webpack_require__(12)('unscopables');
 var ArrayProto = Array.prototype;
-if (ArrayProto[UNSCOPABLES] == undefined) __webpack_require__(27)(ArrayProto, UNSCOPABLES, {});
+if (ArrayProto[UNSCOPABLES] == undefined) __webpack_require__(28)(ArrayProto, UNSCOPABLES, {});
 module.exports = function (key) {
   ArrayProto[UNSCOPABLES][key] = true;
 };
@@ -25628,7 +25628,7 @@ exports.f = Object.getOwnPropertySymbols;
 
 "use strict";
 
-var hide = __webpack_require__(27);
+var hide = __webpack_require__(28);
 var redefine = __webpack_require__(42);
 var fails = __webpack_require__(14);
 var defined = __webpack_require__(57);
@@ -25688,7 +25688,7 @@ module.exports = require("string_decoder");
 "use strict";
 
 
-var DOCUMENT_MODE = __webpack_require__(28).DOCUMENT_MODE;
+var DOCUMENT_MODE = __webpack_require__(29).DOCUMENT_MODE;
 
 //Node construction
 exports.createDocument = function () {
@@ -25904,7 +25904,7 @@ exports.isElementNode = function (node) {
 "use strict";
 
 
-var DOCUMENT_MODE = __webpack_require__(28).DOCUMENT_MODE;
+var DOCUMENT_MODE = __webpack_require__(29).DOCUMENT_MODE;
 
 //Const
 var VALID_DOCTYPE_NAME = 'html',
@@ -29357,7 +29357,7 @@ module.exports = function (it) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var global = __webpack_require__(7);
-var hide = __webpack_require__(27);
+var hide = __webpack_require__(28);
 var uid = __webpack_require__(54);
 var TYPED = uid('typed_array');
 var VIEW = uid('view');
@@ -45396,7 +45396,7 @@ var Tokenizer = __webpack_require__(75),
     foreignContent = __webpack_require__(339),
     mergeOptions = __webpack_require__(144),
     UNICODE = __webpack_require__(76),
-    HTML = __webpack_require__(28);
+    HTML = __webpack_require__(29);
 
 //Aliases
 var $ = HTML.TAG_NAMES,
@@ -48213,7 +48213,7 @@ function endTagInForeignContent(p, token) {
 "use strict";
 
 
-var HTML = __webpack_require__(28);
+var HTML = __webpack_require__(29);
 
 //Aliases
 var $ = HTML.TAG_NAMES,
@@ -48616,7 +48616,7 @@ OpenElementStack.prototype.generateImpliedEndTagsWithExclusion = function (exclu
 
 
 var Tokenizer = __webpack_require__(75),
-    HTML = __webpack_require__(28);
+    HTML = __webpack_require__(29);
 
 //Aliases
 var $ = HTML.TAG_NAMES,
@@ -48885,7 +48885,7 @@ exports.isIntegrationPoint = function (tn, ns, attrs, foreignNS) {
 var defaultTreeAdapter = __webpack_require__(142),
     doctype = __webpack_require__(143),
     mergeOptions = __webpack_require__(144),
-    HTML = __webpack_require__(28);
+    HTML = __webpack_require__(29);
 
 //Aliases
 var $ = HTML.TAG_NAMES,
@@ -58219,7 +58219,7 @@ var global = __webpack_require__(7);
 var DESCRIPTORS = __webpack_require__(23);
 var LIBRARY = __webpack_require__(66);
 var $typed = __webpack_require__(183);
-var hide = __webpack_require__(27);
+var hide = __webpack_require__(28);
 var redefineAll = __webpack_require__(67);
 var fails = __webpack_require__(14);
 var anInstance = __webpack_require__(68);
@@ -58583,7 +58583,7 @@ module.exports = function (done, value) {
 var LIBRARY = __webpack_require__(66);
 var $export = __webpack_require__(2);
 var redefine = __webpack_require__(42);
-var hide = __webpack_require__(27);
+var hide = __webpack_require__(28);
 var has = __webpack_require__(24);
 var Iterators = __webpack_require__(71);
 var $iterCreate = __webpack_require__(957);
@@ -59174,7 +59174,7 @@ webpackEmptyContext.id = 452;
 "use strict";
 
 
-const log = __webpack_require__(29)
+const log = __webpack_require__(27)
 
 const MSG = {
   TWOFACTOR: '2FA token requested'
@@ -59267,7 +59267,7 @@ const rq = request({
     'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:36.0) Gecko/20100101 Firefox/36.0'
   }
 })
-const log = __webpack_require__(29).namespace('saveFiles')
+const log = __webpack_require__(27).namespace('saveFiles')
 const cozy = __webpack_require__(52)
 const mimetypes = __webpack_require__(130)
 const errors = __webpack_require__(453)
@@ -59436,7 +59436,7 @@ function checkMimeWithPath (mime, filepath) {
  */
 
 const bluebird = __webpack_require__(37)
-const log = __webpack_require__(29).namespace('filterData')
+const log = __webpack_require__(27).namespace('filterData')
 
 const filterData = (entries, doctype, options = {}) => {
   const cozy = __webpack_require__(52)
@@ -59519,7 +59519,7 @@ module.exports = filterData
  * @module addData
  */
 const bluebird = __webpack_require__(37)
-const log = __webpack_require__(29).namespace('addData')
+const log = __webpack_require__(27).namespace('addData')
 
 module.exports = (entries, doctype) => {
   const cozy = __webpack_require__(52)
@@ -59546,6 +59546,7 @@ module.exports = (entries, doctype) => {
 const moment = __webpack_require__(1)
 const bluebird = __webpack_require__(37)
 const { findMatchingOperation } = __webpack_require__(1061)
+const log = __webpack_require__(27).namespace('linkBankOperations')
 
 const DOCTYPE = 'io.cozy.bank.operations'
 const DEFAULT_AMOUNT_DELTA = 0.001
@@ -59708,7 +59709,7 @@ class Linker {
   linkMatchingOperation (bill, operations, options) {
     const matchingOp = findMatchingOperation(bill, operations, options)
     if (matchingOp) {
-      if (!matchingOp) { return }
+      log('debug', 'Found matching ', bill, matchingOp)
       return this.addBillToOperation(bill, matchingOp).then(() => matchingOp)
     }
   }
@@ -78989,7 +78990,7 @@ FormattingElementList.prototype.getElementEntry = function (element) {
 
 var OpenElementStack = __webpack_require__(338),
     Tokenizer = __webpack_require__(75),
-    HTML = __webpack_require__(28);
+    HTML = __webpack_require__(29);
 
 
 //Aliases
@@ -79215,7 +79216,7 @@ exports.assign = function (parser) {
 
 
 var doctype = __webpack_require__(143),
-    DOCUMENT_MODE = __webpack_require__(28).DOCUMENT_MODE;
+    DOCUMENT_MODE = __webpack_require__(29).DOCUMENT_MODE;
 
 
 //Conversion tables for DOM Level1 structure emulation
@@ -79561,7 +79562,7 @@ exports.isElementNode = function (node) {
 
 var ParserStream = __webpack_require__(341),
     inherits = __webpack_require__(3).inherits,
-    $ = __webpack_require__(28).TAG_NAMES;
+    $ = __webpack_require__(29).TAG_NAMES;
 
 var PlainTextConversionStream = module.exports = function (options) {
     ParserStream.call(this, options);
@@ -79765,7 +79766,7 @@ DevNullStream.prototype._write = function (chunk, encoding, cb) {
 var Tokenizer = __webpack_require__(75),
     foreignContent = __webpack_require__(339),
     UNICODE = __webpack_require__(76),
-    HTML = __webpack_require__(28);
+    HTML = __webpack_require__(29);
 
 
 //Aliases
@@ -87512,7 +87513,7 @@ module.exports = {"name":"cheerio","version":"1.0.0-rc.2","description":"Tiny, f
 __webpack_require__(794)
 
 const requestFactory = __webpack_require__(385)
-const log = __webpack_require__(29).namespace('cozy-konnector-libs')
+const log = __webpack_require__(27).namespace('cozy-konnector-libs')
 
 module.exports = {
   BaseKonnector: __webpack_require__(924),
@@ -87542,7 +87543,7 @@ function deprecate (wrapped, message) {
 /* 794 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const log = __webpack_require__(29).namespace('Error Interception')
+const log = __webpack_require__(27).namespace('Error Interception')
 
 // This will catch exception which would be uncaught by the connector script itself
 process.on('uncaughtException', err => {
@@ -104568,7 +104569,7 @@ module.exports = function (obj) {
 
 
 const cozy = __webpack_require__(52)
-const log = __webpack_require__(29).namespace('BaseKonnector')
+const log = __webpack_require__(27).namespace('BaseKonnector')
 const Secret = __webpack_require__(384)
 
 /**
@@ -112247,7 +112248,7 @@ var setToStringTag = __webpack_require__(70);
 var IteratorPrototype = {};
 
 // 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
-__webpack_require__(27)(IteratorPrototype, __webpack_require__(12)('iterator'), function () { return this; });
+__webpack_require__(28)(IteratorPrototype, __webpack_require__(12)('iterator'), function () { return this; });
 
 module.exports = function (Constructor, NAME, next) {
   Constructor.prototype = create(IteratorPrototype, { next: descriptor(1, next) });
@@ -113449,7 +113450,7 @@ $JSON && $export($export.S + $export.F * (!USE_NATIVE || $fails(function () {
 });
 
 // 19.4.3.4 Symbol.prototype[@@toPrimitive](hint)
-$Symbol[PROTOTYPE][TO_PRIMITIVE] || __webpack_require__(27)($Symbol[PROTOTYPE], TO_PRIMITIVE, $Symbol[PROTOTYPE].valueOf);
+$Symbol[PROTOTYPE][TO_PRIMITIVE] || __webpack_require__(28)($Symbol[PROTOTYPE], TO_PRIMITIVE, $Symbol[PROTOTYPE].valueOf);
 // 19.4.3.5 Symbol.prototype[@@toStringTag]
 setToStringTag($Symbol, 'Symbol');
 // 20.2.1.9 Math[@@toStringTag]
@@ -114597,7 +114598,7 @@ var $iterators = __webpack_require__(193);
 var getKeys = __webpack_require__(72);
 var redefine = __webpack_require__(42);
 var global = __webpack_require__(7);
-var hide = __webpack_require__(27);
+var hide = __webpack_require__(28);
 var Iterators = __webpack_require__(71);
 var wks = __webpack_require__(12);
 var ITERATOR = wks('iterator');
@@ -115419,7 +115420,7 @@ for (var collections = getKeys(DOMIterables), i = 0; i < collections.length; i++
 
 const fs = __webpack_require__(131)
 const path = __webpack_require__(64)
-const log = __webpack_require__(29).namespace('cozy-client-js-stub')
+const log = __webpack_require__(27).namespace('cozy-client-js-stub')
 const uuid = __webpack_require__(1055)
 const sha1 = __webpack_require__(1057)
 const bytesToUuid = __webpack_require__(132)
@@ -115715,7 +115716,7 @@ module.exports = sha1;
 
 const fs = __webpack_require__(131)
 const path = __webpack_require__(64)
-const log = __webpack_require__(29)
+const log = __webpack_require__(27)
 
 module.exports = getKonnectorConfig
 
@@ -115778,10 +115779,11 @@ module.exports = (entries, fields, options = {}) => {
     return entry
   }
 
+  const originalEntries = entries
   return saveFiles(entries, fields, options)
     .then(entries => filterData(entries, DOCTYPE, options))
     .then(entries => addData(entries, DOCTYPE, options))
-    .then(entries => linkBankOperations(entries, DOCTYPE, fields, options))
+    .then(entries => linkBankOperations(originalEntries, DOCTYPE, fields, options))
 }
 
 
@@ -116351,7 +116353,7 @@ module.exports = {getBillDate, getBillAmount, getIdentifiers, getDateRange, getA
  * @module updateOrCreate
  */
 const bluebird = __webpack_require__(37)
-const log = __webpack_require__(29).namespace('updateOrCreate')
+const log = __webpack_require__(27).namespace('updateOrCreate')
 const cozy = __webpack_require__(52)
 
 module.exports = (entries = [], doctype, matchingAttributes = []) => {

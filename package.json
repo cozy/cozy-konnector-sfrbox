@@ -10,8 +10,8 @@
   "author": "",
   "license": "AGPL-3.0",
   "dependencies": {
-    "cozy-konnector-libs": "^3.0.2",
-    "moment": "^2.18.1"
+    "cozy-konnector-libs": "3.2.1",
+    "moment": "2.20.1"
   },
   "scripts": {
     "start": "node index.js",
@@ -24,8 +24,8 @@
     "deploy": "git-directory-deploy --directory build/ --branch build --repo=https://github.com/cozy/cozy-konnector-sfrbox.git"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "^4.0.1",
-    "git-directory-deploy": "^1.5.1",
-    "webpack": "^3.5.2"
+    "copy-webpack-plugin": "4.3.1",
+    "git-directory-deploy": "1.5.1",
+    "webpack": "3.10.0"
   }
 }

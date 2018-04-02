@@ -11,7 +11,7 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "cozy-konnector-libs": "3.7.4",
-    "moment": "2.21.0"
+    "moment": "2.22.0"
   },
   "scripts": {
     "start": "node index.js",

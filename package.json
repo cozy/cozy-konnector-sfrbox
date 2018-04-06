@@ -20,7 +20,7 @@
     "standalone:record": "REPLAY=record cozy-konnector-standalone",
     "standalone:replay": "REPLAY=replay cozy-konnector-standalone",
     "build": "webpack",
-    "deploy": "git-directory-deploy --directory build/ --branch ${DEPLOY_BRANCH:-build} --repo=${DEPLOY_REPOSITORY:-https://github.com/cozy/cozy-konnector-sfrbox.git}"
+    "deploy": "git-directory-deploy --directory build/ --branch ${DEPLOY_BRANCH:-build} --repo=${DEPLOY_REPOSITORY:-https://$GITHUB_TOKEN@github.com/cozy/cozy-konnector-sfrbox.git}"
   },
   "devDependencies": {
     "copy-webpack-plugin": "4.5.1",

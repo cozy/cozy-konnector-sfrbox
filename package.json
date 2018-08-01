@@ -10,8 +10,8 @@
   "author": "",
   "license": "AGPL-3.0",
   "dependencies": {
-    "cozy-konnector-libs": "3.7.4",
-    "moment": "2.22.0"
+    "cozy-konnector-libs": "^3.0.2",
+    "moment": "^2.18.1"
   },
   "scripts": {
     "start": "node index.js",
@@ -20,12 +20,12 @@
     "standalone:record": "REPLAY=record cozy-konnector-standalone",
     "standalone:replay": "REPLAY=replay cozy-konnector-standalone",
     "build": "webpack",
-    "deploy": "git-directory-deploy --directory build/ --branch ${DEPLOY_BRANCH:-build} --repo=${DEPLOY_REPOSITORY:-https://$GITHUB_TOKEN@github.com/cozy/cozy-konnector-sfrbox.git}"
+    "deploy:travis": "git-directory-deploy --username Cozy --email contact@cozycloud.cc --directory build/ --repo=https://$GITHUB_TOKEN@github.com/cozy/cozy-konnector-sfrbox.git",
+    "deploy": "git-directory-deploy --directory build/ --branch build --repo=https://github.com/cozy/cozy-konnector-sfrbox.git"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "4.5.1",
-    "git-directory-deploy": "1.5.1",
-    "webpack": "4.4.1",
-    "webpack-cli": "2.0.13"
+    "copy-webpack-plugin": "^4.0.1",
+    "git-directory-deploy": "^1.5.1",
+    "webpack": "^3.5.2"
   }
 }

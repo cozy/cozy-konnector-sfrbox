@@ -1,0 +1,26 @@
+language: node_js
+node_js:
+- '8'
+cache:
+  yarn: true
+  directories:
+  - node_modules
+branches:
+  except:
+  - build
+  - build-debug
+script:
+- yarn build
+deploy:
+ - provider: script
+   repo: konnectors/cozy-konnector-sfrbox
+   skip-cleanup: true
+   script: yarn deploy
+   on:
+     branch: master
+ - provider: script
+   repo: konnectors/cozy-konnector-sfrbox
+   skip-cleanup: true
+   script: DEPLOY_BRANCH=latest yarn deploy
+   on:
+     branch: prod

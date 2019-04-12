@@ -1198,9 +1198,9 @@ cozy-doctypes@1.39.0:
     es6-promise-pool "2.5.0"
     lodash "4.17.11"
 
-cozy-jobs-cli@1.8.3:
-  version "1.8.3"
-  resolved "https://registry.yarnpkg.com/cozy-jobs-cli/-/cozy-jobs-cli-1.8.3.tgz#abe511dae9c37c77783ed3d9b7a286c28db7a822"
+cozy-jobs-cli@1.8.4:
+  version "1.8.4"
+  resolved "https://registry.yarnpkg.com/cozy-jobs-cli/-/cozy-jobs-cli-1.8.4.tgz#aabf50f4d8d717931368d45c7f9a3b397ef4605a"
   dependencies:
     btoa "1.2.1"
     cheerio "1.0.0-rc.3"

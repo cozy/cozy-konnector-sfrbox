@@ -1254,9 +1254,9 @@ cozy-doctypes@1.58.0:
     lodash "4.17.15"
     prop-types "^15.7.2"
 
-cozy-jobs-cli@1.9.2:
-  version "1.9.2"
-  resolved "https://registry.yarnpkg.com/cozy-jobs-cli/-/cozy-jobs-cli-1.9.2.tgz#e2b71452ac49c1a7227a2411d3a37e6c60566832"
+cozy-jobs-cli@1.9.3:
+  version "1.9.3"
+  resolved "https://registry.yarnpkg.com/cozy-jobs-cli/-/cozy-jobs-cli-1.9.3.tgz#777840f89d313b7be5f1cb71ac3dc4c6587124c6"
   dependencies:
     btoa "1.2.1"
     cheerio "1.0.0-rc.3"
@@ -1264,7 +1264,7 @@ cozy-jobs-cli@1.9.2:
     commander "2.20.0"
     core-js "3.1.4"
     cozy-client-js "0.16.4"
-    cozy-konnector-libs "^4.18.6"
+    cozy-konnector-libs "^4.18.7"
     cozy-logger "1.5.0"
     opn "6.0.0"
     pretty "2.0.0"
@@ -1299,9 +1299,9 @@ cozy-konnector-libs@4.18.5:
     request-promise "4.2.4"
     strip-json-comments "^3.0.1"
 
-cozy-konnector-libs@^4.18.6:
-  version "4.18.6"
-  resolved "https://registry.yarnpkg.com/cozy-konnector-libs/-/cozy-konnector-libs-4.18.6.tgz#473142c6340f5e517458a199dac4b94cb1a64f30"
+cozy-konnector-libs@^4.18.7:
+  version "4.18.7"
+  resolved "https://registry.yarnpkg.com/cozy-konnector-libs/-/cozy-konnector-libs-4.18.7.tgz#f4b55519e551c784e1606b10d9c1dae578cf8738"
   dependencies:
     bluebird "3.5.5"
     bluebird-retry "0.11.0"
@@ -1310,7 +1310,7 @@ cozy-konnector-libs@^4.18.6:
     cozy-client "6.55.1"
     cozy-client-js "0.16.4"
     cozy-doctypes "1.58.0"
-    cozy-logger "1.5.0"
+    cozy-logger "1.3.1"
     date-fns "1.30.1"
     file-type "12.1.0"
     geco "0.11.1"
@@ -1321,6 +1321,7 @@ cozy-konnector-libs@^4.18.6:
     pdfjs-dist "2.1.266"
     raven "2.6.4"
     raw-body "2.4.1"
+    react "16.8.6"
     request "2.88.0"
     request-debug "0.2.0"
     request-promise "4.2.4"
@@ -4503,6 +4504,15 @@ react@16.7.0:
     prop-types "^15.6.2"
     scheduler "^0.12.0"
 
+react@16.8.6:
+  version "16.8.6"
+  resolved "https://registry.yarnpkg.com/react/-/react-16.8.6.tgz#ad6c3a9614fd3a4e9ef51117f54d888da01f2bbe"
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    prop-types "^15.6.2"
+    scheduler "^0.13.6"
+
 read@1.0.x:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/read/-/read-1.0.7.tgz#b3da19bd052431a97671d44a42634adf710b40c4"
@@ -4800,6 +4810,13 @@ safe-regex@^1.1.0:
 scheduler@^0.12.0:
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.12.0.tgz#8ab17699939c0aedc5a196a657743c496538647b"
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+
+scheduler@^0.13.6:
+  version "0.13.6"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.13.6.tgz#466a4ec332467b31a91b9bf74e5347072e4cd889"
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
